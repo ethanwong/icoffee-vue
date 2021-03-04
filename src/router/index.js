@@ -11,6 +11,7 @@ import Layout from '@/layout'
 // import chartsRouter from './modules/charts'
 // import tableRouter from './modules/table'
 // import nestedRouter from './modules/nested'
+import syncRouter from './modules/sync'
 
 /**
  * Note: sub-menu only appear when route children.length >= 1
@@ -79,10 +80,12 @@ export const constantRoutes = [
     path: '/',
     component: Layout,
     redirect: '/dashboard',
+    meta: {
+    },
     children: [
       {
         path: 'dashboard',
-        component: () => import('@/views/dashboard/index'),
+        component: () => import('@/views/dashboard'),
         name: 'dashboard',
         meta: { title: '首页', icon: 'home', affix: true }
       }
@@ -97,16 +100,19 @@ export const constantRoutes = [
       {
         path: 'index',
         component: () => import('@/views/profile/index'),
-        name: '个人信息',
-        meta: { title: '个人信息', icon: 'user', noCache: true }
+        name: '个人中心',
+        meta: { title: '个人中心', icon: 'user', noCache: true }
       }
     ]
-  }
+  },
+
   // /** when your routing map is too long, you can split it into small modules **/
   // componentsRouter,
   // chartsRouter,
   // nestedRouter,
-  // tableRouter
+  // tableRouter,
+  // syncRouter,
+  { path: '*', redirect: '/404', hidden: true }
 ]
 
 export const asyncRoutes = [

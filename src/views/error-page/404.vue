@@ -8,12 +8,9 @@
         <img class="pic-404__child right" src="@/assets/404_images/404_cloud.png" alt="404">
       </div>
       <div class="bullshit">
-        <div class="bullshit__oops">OOPS!</div>
-        <div class="bullshit__info">All rights reserved
-          <a style="color:#20a0ff" href="https://wallstreetcn.com" target="_blank">wallstreetcn</a>
-        </div>
+        <div class="bullshit__oops">404</div>
         <div class="bullshit__headline">{{ message }}</div>
-        <div class="bullshit__info">Please check that the URL you entered is correct, or click the button below to return to the homepage.</div>
+        <div class="bullshit__info">检查访问路径是否正确，页面是否存在。</div>
         <a href="" class="bullshit__return-home">Back to home</a>
       </div>
     </div>
@@ -26,7 +23,7 @@ export default {
   name: 'Page404',
   computed: {
     message() {
-      return 'The webmaster said that you can not enter this page...'
+      return '页面不存在'
     }
   }
 }

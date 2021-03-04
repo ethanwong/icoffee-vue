@@ -1,3 +1,11 @@
+/*
+ * @Description:
+ * @Author: Ethan Wong
+ * @Date: 2020-09-04 16:19:39
+ * @FilePath: \src\router\modules\charts.js
+ * @LastEditTime: 2021-03-04 18:23:47
+ * @LastEditors: your name
+ */
 /** When your routing table is too long, you can split it into small modules**/
 
 import Layout from '@/layout'

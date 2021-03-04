@@ -1,3 +1,11 @@
+/*
+ * @Description:
+ * @Author: Ethan Wong
+ * @Date: 2021-01-30 15:12:51
+ * @FilePath: \src\api\security.js
+ * @LastEditTime: 2021-03-04 15:06:28
+ * @LastEditors: your name
+ */
 import request from '@/utils/request'
 
 export function getCaptcha() {
@@ -28,3 +36,11 @@ export function logout() {
     method: 'post'
   })
 }
+
+export function refreshToken() {
+  return request({
+    url: '/security/refreshToken',
+    method: 'post'
+  })
+}
+

@@ -198,7 +198,7 @@
           </el-col>
         </el-row>
         <el-row>
-          <el-col :span="24">
+          <el-col :span="12">
             <el-form-item label="菜单图标" prop="icon">
               <el-popover
                 placement="bottom-start"
@@ -229,19 +229,6 @@
               </el-popover>
             </el-form-item>
           </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="是否隐藏" prop="hidden">
-              <el-radio-group v-model="inputTemp.hidden">
-                <el-radio
-                  v-for="dict in visibleOptions"
-                  :key="dict.dictValue"
-                  :label="dict.dictValue"
-                >{{ dict.dictLabel }}</el-radio>
-              </el-radio-group>
-            </el-form-item>
-          </el-col>
           <el-col :span="12">
             <el-form-item label="显示排序" prop="orderNum">
               <el-input-number
@@ -259,6 +246,28 @@
             </el-form-item>
           </el-col>
         </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="是否隐藏" prop="hidden">
+              <el-radio-group v-model="inputTemp.hidden">
+                <el-radio
+                  v-for="dict in visibleOptions"
+                  :key="dict.dictValue"
+                  :label="dict.dictValue"
+                >{{ dict.dictLabel }}</el-radio>
+              </el-radio-group>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="路由跳转">
+              <el-radio-group v-model="inputTemp.redirect" :disabled="redirectDisabled">
+                <el-radio :label="true">是</el-radio>
+                <el-radio :label="false">否</el-radio>
+              </el-radio-group>
+            </el-form-item>
+          </el-col>
+
+        </el-row>
 
         <el-row>
           <el-col :span="24">
@@ -268,6 +277,7 @@
             </el-form-item>
           </el-col>
         </el-row>
+        <el-row />
         <el-row>
           <el-col :span="24">
             <el-form-item label="组件路径" prop="componentPath">
@@ -378,6 +388,7 @@ export default {
       },
       dialogViewVisible: false,
       viewRow: '',
+      redirectDisabled: false,
       inputTemp: {
         id: '',
         parentId: 0,
@@ -385,6 +396,7 @@ export default {
         icon: '',
         orderNo: 1,
         hidden: false,
+        redirect: false,
         moduleName: '',
         routePath: '',
         componentPath: ''
@@ -442,6 +454,9 @@ export default {
       }
     }
   },
+  watch: {
+
+  },
   created() {
     this.getList()
   },
@@ -486,7 +501,10 @@ export default {
       console.log('targetMenuId=' + id)
       if (this.inputTemp.parentId === 0) {
         this.inputTemp.componentPath = 'Layout'
+        this.redirectDisabled = false
       } else {
+        this.redirectDisabled = true
+
         var children = this.menuOptions[0].children
         console.log('children=' + JSON.stringify(children))
         var parentMenu = this.searchNode(id, children)
@@ -534,6 +552,7 @@ export default {
         routePath: '',
         componentPath: ''
       }
+      this.isRedirect = false
       this.resetForm('form')
     },
     hiddenFormat(row, column) {
@@ -585,6 +604,13 @@ export default {
       this.dialogStatus = 'update'
       this.dialogFormVisible = true
       this.inputTemp = Object.assign({}, row) // copy obj
+
+      if (this.inputTemp.parentId === '0') {
+        this.redirectDisabled = false
+      } else {
+        this.redirectDisabled = true
+      }
+
       this.$nextTick(() => {
         this.$refs['dataForm'].clearValidate()
       })

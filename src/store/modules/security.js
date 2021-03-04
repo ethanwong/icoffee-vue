@@ -1,27 +1,26 @@
-import { login, logout, getUserInfo } from '@/api/security'
-import { getToken, removeToken, setToken } from '@/utils/auth'
+import { login, logout, getUserInfo, refreshToken } from '@/api/security'
+import { getAccessToken, setAccessToken, removeAccessToken, getRefreshToken, setRefreshToken, removeRefreshToken } from '@/utils/auth'
 import { constantRoutes, asyncRoutes, resetRouter } from '@/router'
 import { filterAsyncRoutes, filterAsyncRouter } from '@/store/modules/permission'
 import { Notification, MessageBox, Message } from 'element-ui'
 
 const state = {
-  token: getToken(),
+  accessToken: getAccessToken(),
+  refreshToken: getRefreshToken(),
   username: '',
   avatar: 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif',
-  introduction: '',
   roles: [],
   routes: [],
-  addRoutes: [],
   permissions: [],
   userinfo: []
 }
 
 const mutations = {
-  SET_TOKEN: (state, token) => {
-    state.token = token
+  SET_ACCESS_TOKEN: (state, token) => {
+    state.accessToken = token
   },
-  SET_INTRODUCTION: (state, introduction) => {
-    state.introduction = introduction
+  SET_REFRESH_TOKEN: (state, token) => {
+    state.refreshToken = token
   },
   SET_USERNAME: (state, username) => {
     state.username = username
@@ -53,11 +52,17 @@ const actions = {
         console.log('login response=' + JSON.stringify(response))
 
         if (response.success) {
-          const { data } = response
+          const { accessToken, refreshToken } = response.data
+
+          // console.log('SET_ACCESS_TOKEN=' + accessToken)
+          // console.log('SET_REFRESH_TOKEN=' + refreshToken)
+
           // 更新store中token
-          commit('SET_TOKEN', data.token)
+          commit('SET_ACCESS_TOKEN', accessToken.token)
+          commit('SET_REFRESH_TOKEN', refreshToken.token)
           // 更新Cookie中token
-          setToken(data.token)
+          setAccessToken(accessToken.token)
+          setRefreshToken(refreshToken.token)
           resolve()
         } else {
           Notification.error({
@@ -68,6 +73,29 @@ const actions = {
           })
           reject(response.message)
         }
+      }).catch(error => {
+        reject(error)
+      })
+    })
+  },
+  // 刷新token
+  refreshToken({ commit }) {
+    return new Promise((resolve, reject) => {
+      // 刷新token时使用refreshToken进行请求
+      console.log('state.refreshToken=' + state.refreshToken)
+      commit('SET_ACCESS_TOKEN', state.refreshToken)
+      setAccessToken(state.refreshToken)
+      refreshToken().then((response) => {
+        const { accessToken, refreshToken } = response.data
+
+        // 更新store中token
+        commit('SET_ACCESS_TOKEN', accessToken.token)
+        commit('SET_REFRESH_TOKEN', refreshToken.token)
+        // 更新Cookie中token
+        setAccessToken(accessToken.token)
+        setRefreshToken(refreshToken.token)
+
+        resolve()
       }).catch(error => {
         reject(error)
       })
@@ -120,9 +148,11 @@ const actions = {
   logout({ commit, state, dispatch }) {
     return new Promise((resolve, reject) => {
       logout(state.token).then(() => {
-        commit('SET_TOKEN', '')
+        commit('SET_ACCESS_TOKEN', '')
+        commit('SET_REFRESH_TOKEN', '')
         commit('SET_ROLES', [])
-        removeToken()
+        removeAccessToken()
+        removeRefreshToken()
         resetRouter()
 
         // reset visited views and cached views
@@ -133,16 +163,6 @@ const actions = {
       }).catch(error => {
         reject(error)
       })
-    })
-  },
-
-  // remove token
-  resetToken({ commit }) {
-    return new Promise(resolve => {
-      commit('SET_TOKEN', '')
-      commit('SET_ROLES', [])
-      removeToken()
-      resolve()
     })
   }
 
