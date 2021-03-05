@@ -1,7 +1,7 @@
 import axios from 'axios'
-import { Notification, MessageBox, Message } from 'element-ui'
+import { Notification, MessageBox } from 'element-ui'
 import store from '@/store'
-import { getAccessToken, setAccessToken, removeAccessToken, getRefreshToken, setRefreshToken, removeRefreshToken } from '@/utils/auth' // get token from cookie
+import { getAccessToken, setAccessToken, setRefreshToken } from '@/utils/auth' // get token from cookie
 import router from '@/router'
 
 // create an axios instance
@@ -11,16 +11,48 @@ const service = axios.create({
   timeout: 5000 // request timeout
 })
 
+const { verify, decode } = require('jsonwebtoken')
+
+const secretKey = '088c49f786894126870318483b4fff7d'
+
 // request interceptor
 service.interceptors.request.use(
   config => {
     // do something before request is sent
     // if (store.getters.accessToken) {
-    if (getAccessToken()) {
+    const accessToken = getAccessToken()
+    console.log('request accessToken=' + accessToken)
+    if (accessToken && accessToken.token) {
+      // 判断accessToken是否过期，如果过期，刷新token
+
+      const decodeToken = decode(accessToken.token)
+      const tokenType = decodeToken.type
+      console.log('request has token tokenType=' + tokenType)
+      verify(accessToken.token, secretKey, function(error, decoded) {
+        // 只有token的类型为ACCESS，并且过期的时候，执行token刷新
+        if (error !== null) {
+          if (tokenType === 'ACCESS') {
+            new Promise((resolve, reject) => {
+              store.dispatch('security/refreshToken').then((response) => {
+                resolve()
+              })
+            })
+          } else {
+            setAccessToken('')
+            setRefreshToken('')
+            store.dispatch('security/logout').then((response) => {
+              router.push({ path: router.currentRoute.path })
+            })
+          }
+        }
+      })
+
       // let each request carry token
       // ['X-Token'] is a custom headers key
       // please modify it according to the actual situation
-      config.headers['Authorization'] = 'Bearer ' + getAccessToken()
+      config.headers['Authorization'] = 'Bearer ' + accessToken.token
+    } else {
+      console.log('request has no token ')
     }
     return config
   },
@@ -38,6 +70,7 @@ service.interceptors.response.use(
   },
   error => {
     // 兼容blob下载出错json提示
+    console.log('error=' + error)
     if (error.response.data instanceof Blob && error.response.data.type.toLowerCase().indexOf('json') !== -1) {
       const reader = new FileReader()
       reader.readAsText(error.response.data, 'utf-8')
@@ -63,23 +96,16 @@ service.interceptors.response.use(
               setAccessToken('')
               setRefreshToken('')
               store.dispatch('security/logout').then((response) => {
-                router.push({ path: '/redirect' + sourcePath })
+                router.push({ path: sourcePath })
               })
+              MessageBox.alert(respData.message, '登录超时')
             } else {
-              MessageBox.confirm(respData.message, '登录超时', {
-                confirmButtonText: '刷新',
-                cancelButtonText: '取消',
-                type: 'warning'
-              }).then(() => {
-                store.dispatch('security/refreshToken').then((response) => {
-                  router.push({ path: '/redirect' + router.currentRoute.path })
-                })
-              }).catch(() => {
-                router.push({ path: '/redirect' + sourcePath })
+              store.dispatch('security/refreshToken').then((response) => {
+                router.push({ path: '/redirect' + router.currentRoute.path })
               })
             }
           } else {
-            router.push({ path: '/redirect' + sourcePath })
+            router.push({ path: sourcePath })
           }
         } else if (code === 403) {
           router.push({ path: '/403' })

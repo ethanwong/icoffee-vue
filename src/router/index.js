@@ -104,7 +104,7 @@ export const constantRoutes = [
         meta: { title: '个人中心', icon: 'user', noCache: true }
       }
     ]
-  },
+  }
 
   // /** when your routing map is too long, you can split it into small modules **/
   // componentsRouter,
@@ -112,7 +112,6 @@ export const constantRoutes = [
   // nestedRouter,
   // tableRouter,
   // syncRouter,
-  { path: '*', redirect: '/404', hidden: true }
 ]
 
 export const asyncRoutes = [

@@ -2,7 +2,7 @@ import { login, logout, getUserInfo, refreshToken } from '@/api/security'
 import { getAccessToken, setAccessToken, removeAccessToken, getRefreshToken, setRefreshToken, removeRefreshToken } from '@/utils/auth'
 import { constantRoutes, asyncRoutes, resetRouter } from '@/router'
 import { filterAsyncRoutes, filterAsyncRouter } from '@/store/modules/permission'
-import { Notification, MessageBox, Message } from 'element-ui'
+import { Notification } from 'element-ui'
 
 const state = {
   accessToken: getAccessToken(),
@@ -58,11 +58,11 @@ const actions = {
           // console.log('SET_REFRESH_TOKEN=' + refreshToken)
 
           // 更新store中token
-          commit('SET_ACCESS_TOKEN', accessToken.token)
-          commit('SET_REFRESH_TOKEN', refreshToken.token)
+          commit('SET_ACCESS_TOKEN', accessToken)
+          commit('SET_REFRESH_TOKEN', refreshToken)
           // 更新Cookie中token
-          setAccessToken(accessToken.token)
-          setRefreshToken(refreshToken.token)
+          setAccessToken(accessToken)
+          setRefreshToken(refreshToken)
           resolve()
         } else {
           Notification.error({
@@ -82,18 +82,17 @@ const actions = {
   refreshToken({ commit }) {
     return new Promise((resolve, reject) => {
       // 刷新token时使用refreshToken进行请求
-      console.log('state.refreshToken=' + state.refreshToken)
       commit('SET_ACCESS_TOKEN', state.refreshToken)
       setAccessToken(state.refreshToken)
       refreshToken().then((response) => {
         const { accessToken, refreshToken } = response.data
 
         // 更新store中token
-        commit('SET_ACCESS_TOKEN', accessToken.token)
-        commit('SET_REFRESH_TOKEN', refreshToken.token)
+        commit('SET_ACCESS_TOKEN', accessToken)
+        commit('SET_REFRESH_TOKEN', refreshToken)
         // 更新Cookie中token
-        setAccessToken(accessToken.token)
-        setRefreshToken(refreshToken.token)
+        setAccessToken(accessToken)
+        setRefreshToken(refreshToken)
 
         resolve()
       }).catch(error => {
@@ -125,6 +124,8 @@ const actions = {
         commit('SET_AVATAR', 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif')
 
         filterAsyncRouter(routes)
+        // 确保404跳转放到所有路由的末尾，负责刷新浏览器会细化in404错误
+        routes.push({ path: '*', redirect: '/404', hidden: true })
 
         commit('SET_ROUTES', routes)
         commit('SET_PERMISSIONS', permissions)

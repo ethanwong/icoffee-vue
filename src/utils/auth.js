@@ -12,7 +12,11 @@ const AccessTokenKey = 'access-token'
 const RefreshTokenKey = 'refresh-token'
 
 export function getAccessToken() {
-  return Cookies.get(AccessTokenKey)
+  const token = Cookies.get(AccessTokenKey)
+  if (token) {
+    return JSON.parse(token)
+  }
+  return token
 }
 export function setAccessToken(token) {
   return Cookies.set(AccessTokenKey, token)
@@ -23,7 +27,11 @@ export function removeAccessToken() {
 }
 
 export function getRefreshToken() {
-  return Cookies.get(RefreshTokenKey)
+  const token = Cookies.get(RefreshTokenKey)
+  if (token) {
+    return JSON.parse(token)
+  }
+  return token
 }
 export function setRefreshToken(token) {
   return Cookies.set(RefreshTokenKey, token)

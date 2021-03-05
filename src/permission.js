@@ -3,7 +3,7 @@
  * @Author: Ethan Wong
  * @Date: 2020-09-04 16:19:39
  * @FilePath: \src\permission.js
- * @LastEditTime: 2021-03-04 18:38:18
+ * @LastEditTime: 2021-03-05 17:11:21
  * @LastEditors: your name
  */
 
@@ -27,8 +27,9 @@ router.beforeEach(async(to, from, next) => {
   document.title = getPageTitle(to.meta.title)
 
   // determine whether the user has logged in
-  const hasToken = getAccessToken()
-  if (hasToken) {
+  const accessToken = getAccessToken()
+  if (accessToken && accessToken.token) {
+    console.log('has token to.path=' + to.path)
     if (to.path === '/login') {
       // if is logged in, redirect to the home page
       next({ path: '/' })
@@ -38,15 +39,17 @@ router.beforeEach(async(to, from, next) => {
       // determine whether the user has obtained his permission roles through getInfo
       const hasRoles = store.getters.roles && store.getters.roles.length > 0
       if (hasRoles) {
-        console.log('hasRoles next')
+        console.log('has Roles next to.path=' + to.path)
         next()
       } else {
+        console.log('has no Roles next to.path=' + to.path)
         try {
           // get user info
           // note: roles must be a object array! such as: ['admin'] or ,['developer','editor']
           const { routes } = await store.dispatch('security/getUserInfo')
-          console.log('routes=' + routes)
+          // console.log('security/getUserInfo routes=' + routes)
           // dynamically add accessible routes
+
           router.addRoutes(routes)
 
           // hack method to ensure that addRoutes is complete
@@ -65,6 +68,7 @@ router.beforeEach(async(to, from, next) => {
       }
     }
   } else {
+    console.log('has no token to.path=' + to.path)
     /* has no token*/
 
     if (whiteList.indexOf(to.path) !== -1) {
