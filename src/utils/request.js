@@ -98,7 +98,7 @@ service.interceptors.response.use(
                 router.push({ path: sourcePath })
               })
               // MessageBox.alert(respData.message, '登录超时')
-              MessageBox.alert('用户[' + store.getters.username + ']登录超时，请重新登录！', '登录超时')
+              MessageBox.alert('当前用户登录超时，请重新登录！', '登录超时')
             } else {
               console.log('######request interceptors access token refresh######')
               store.dispatch('security/refreshToken').then((response) => {
