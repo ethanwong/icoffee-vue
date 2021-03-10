@@ -20,22 +20,20 @@ service.interceptors.request.use(
   config => {
     // do something before request is sent
     // if (store.getters.accessToken) {
-    const accessToken = getAccessToken()
-    console.log('request accessToken=' + accessToken)
+    let accessToken = getAccessToken()
+    console.log('######request use accessToken=' + accessToken)
     if (accessToken && accessToken.token) {
       // 判断accessToken是否过期，如果过期，刷新token
 
       const decodeToken = decode(accessToken.token)
       const tokenType = decodeToken.type
-      console.log('request has token tokenType=' + tokenType)
+      console.log('######request has token tokenType=' + tokenType)
       verify(accessToken.token, secretKey, function(error, decoded) {
         // 只有token的类型为ACCESS，并且过期的时候，执行token刷新
         if (error !== null) {
           if (tokenType === 'ACCESS') {
-            new Promise((resolve, reject) => {
-              store.dispatch('security/refreshToken').then((response) => {
-                resolve()
-              })
+            console.log('######request use access token refresh######')
+            store.dispatch('security/refreshToken').then((response) => {
             })
           } else {
             setAccessToken('')
@@ -47,12 +45,11 @@ service.interceptors.request.use(
         }
       })
 
-      // let each request carry token
-      // ['X-Token'] is a custom headers key
-      // please modify it according to the actual situation
+      // 重新读取token
+      accessToken = getAccessToken()
       config.headers['Authorization'] = 'Bearer ' + accessToken.token
     } else {
-      console.log('request has no token ')
+      console.log('######request has no token ')
     }
     return config
   },
@@ -100,6 +97,7 @@ service.interceptors.response.use(
               })
               MessageBox.alert(respData.message, '登录超时')
             } else {
+              console.log('######request interceptors access token refresh######')
               store.dispatch('security/refreshToken').then((response) => {
                 router.push({ path: '/redirect' + router.currentRoute.path })
               })

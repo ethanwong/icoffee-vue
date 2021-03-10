@@ -3,7 +3,7 @@
  * @Author: Ethan Wong
  * @Date: 2021-01-30 15:12:51
  * @FilePath: \src\api\security.js
- * @LastEditTime: 2021-03-04 15:06:28
+ * @LastEditTime: 2021-03-09 14:00:42
  * @LastEditors: your name
  */
 import request from '@/utils/request'
@@ -37,7 +37,7 @@ export function logout() {
   })
 }
 
-export function refreshToken() {
+export async function refreshToken() {
   return request({
     url: '/security/refreshToken',
     method: 'post'

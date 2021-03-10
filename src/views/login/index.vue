@@ -78,8 +78,10 @@
 </template>
 
 <script>
+import { encrypt } from '@/utils/rsaEncrypt'
 import { getCaptcha } from '@/api/security'
-
+import Cookies from 'js-cookie'
+import Config from '@/settings'
 export default {
   name: 'Login',
   data() {
@@ -99,8 +101,8 @@ export default {
     }
     return {
       loginForm: {
-        username: 'root',
-        password: '123456',
+        username: '',
+        password: '',
         rememberMe: false,
         code: ''
       },
@@ -132,6 +134,7 @@ export default {
   },
   created() {
     this.getCode()
+    this.getCookie()
   },
   mounted() {
     if (this.loginForm.username === '') {
@@ -160,11 +163,44 @@ export default {
         this.$refs.password.focus()
       })
     },
+    getCookie() {
+      const username = Cookies.get('username')
+      let password = Cookies.get('password')
+      const rememberMe = Cookies.get('rememberMe')
+      // 保存cookie里面的加密后的密码
+      this.cookiePass = password === undefined ? '' : password
+      password = password === undefined ? this.loginForm.password : password
+      this.loginForm = {
+        username: username === undefined ? this.loginForm.username : username,
+        password: password,
+        rememberMe: rememberMe === undefined ? false : Boolean(rememberMe),
+        code: ''
+      }
+    },
     handleLogin() {
       this.$refs.loginForm.validate(valid => {
+        const user = {
+          username: this.loginForm.username,
+          password: this.loginForm.password,
+          rememberMe: this.loginForm.rememberMe,
+          code: this.loginForm.code
+        }
+        if (user.password !== this.cookiePass) {
+          user.password = encrypt(user.password)
+        }
+
         if (valid) {
           this.loading = true
-          this.$store.dispatch('security/login', this.loginForm)
+          if (user.rememberMe) {
+            Cookies.set('username', user.username, { expires: Config.passCookieExpires })
+            Cookies.set('password', user.password, { expires: Config.passCookieExpires })
+            Cookies.set('rememberMe', user.rememberMe, { expires: Config.passCookieExpires })
+          } else {
+            Cookies.remove('username')
+            Cookies.remove('password')
+            Cookies.remove('rememberMe')
+          }
+          this.$store.dispatch('security/login', user)
             .then(() => {
               this.$router.push({ path: this.redirect || '/', query: this.otherQuery })
               this.loading = false
