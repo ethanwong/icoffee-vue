@@ -1,3 +1,11 @@
+<!--
+ * @Description:
+ * @Author: Ethan Wong
+ * @Date: 2020-09-04 16:19:39
+ * @FilePath: \src\layout\components\Sidebar\Logo.vue
+ * @LastEditTime: 2021-03-10 14:48:09
+ * @LastEditors: your name
+-->
 <template>
   <div class="sidebar-logo-container" :class="{'collapse':collapse}">
     <transition name="sidebarLogoFade">
@@ -14,6 +22,7 @@
 </template>
 
 <script>
+import Config from '@/settings'
 export default {
   name: 'SidebarLogo',
   props: {
@@ -24,7 +33,7 @@ export default {
   },
   data() {
     return {
-      title: 'Vue Element Admin',
+      title: Config.title,
       logo: 'https://wpimg.wallstcn.com/69a1c46c-eb1c-4b46-8bd4-e9e686ef5251.png'
     }
   }

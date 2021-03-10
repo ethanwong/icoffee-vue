@@ -3,6 +3,8 @@ import { Notification, MessageBox } from 'element-ui'
 import store from '@/store'
 import { getAccessToken, setAccessToken, setRefreshToken } from '@/utils/auth' // get token from cookie
 import router from '@/router'
+import Config from '@/settings'
+import { getUserInfo } from '@/api/security'
 
 // create an axios instance
 const service = axios.create({
@@ -13,7 +15,7 @@ const service = axios.create({
 
 const { verify, decode } = require('jsonwebtoken')
 
-const secretKey = '088c49f786894126870318483b4fff7d'
+const secretKey = Config.jwt.secretKey
 
 // request interceptor
 service.interceptors.request.use(
@@ -95,7 +97,8 @@ service.interceptors.response.use(
               store.dispatch('security/logout').then((response) => {
                 router.push({ path: sourcePath })
               })
-              MessageBox.alert(respData.message, '登录超时')
+              // MessageBox.alert(respData.message, '登录超时')
+              MessageBox.alert('用户[' + store.getters.username + ']登录超时，请重新登录！', '登录超时')
             } else {
               console.log('######request interceptors access token refresh######')
               store.dispatch('security/refreshToken').then((response) => {

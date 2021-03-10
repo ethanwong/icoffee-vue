@@ -9,7 +9,7 @@
       label-position="left"
     >
       <div class="title-container">
-        <h2 class="title">Vue Element Admin Login</h2>
+        <h2 class="title">{{ loginTitle }}</h2>
       </div>
       <el-form-item prop="username">
         <el-input
@@ -100,6 +100,7 @@ export default {
       }
     }
     return {
+      loginTitle: Config.title,
       loginForm: {
         username: '',
         password: '',

@@ -34,8 +34,8 @@
           <a target="_blank" href="https://panjiachen.github.io/vue-element-admin-site/#/">
             <el-dropdown-item>Docs</el-dropdown-item>
           </a> -->
-          <el-dropdown-item divided @click.native="logout">
-            <span style="display:block;">退出登录</span>
+          <el-dropdown-item divided @click.native="toLogout">
+            <span style="display:block;">注销登录</span>
           </el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
@@ -74,6 +74,20 @@ export default {
     async logout() {
       await this.$store.dispatch('security/logout')
       this.$router.push(`/login?redirect=${this.$route.fullPath}`)
+    },
+    toLogout() {
+      this.$confirm('确定注销登录吗？', '注销确认', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.logout()
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消注销'
+        })
+      })
     }
   }
 }
